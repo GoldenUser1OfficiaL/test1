@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Underwater Interface — Menu & Discord</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+html,body { width:100%; height:100%; font-family:'Courier New',monospace; overflow:hidden; color:#fff; }
+body {
+  background: linear-gradient(to top, #001f3f 0%, #004080 100%);
+  position: relative;
+}
+.bubbles-container {
+  position:absolute; width:100%; height:100%; overflow:hidden; z-index:1;
+}
+.bubble {
+  position:absolute; border-radius:50%; background: rgba(255,255,255,0.6);
+  pointer-events:auto; cursor:pointer; animation-name: rise;
+  animation-timing-function: linear; animation-iteration-count: 1;
+}
+@keyframes rise {
+  0% { transform: translateY(0); opacity:0; }
+  10% { opacity:0.6; }
+  90% { opacity:0.6; }
+  100% { transform: translateY(-100vh); opacity:0; }
+}
+.sidebar {
+  position:absolute; top:0; left:0; width:220px; height:100%; background:rgba(0,0,50,0.85);
+  padding:20px; display:flex; flex-direction:column; border-right:1px solid #00ffff; z-index:10;
+}
+.menu-item {
+  font-size:22px; margin-bottom:10px; cursor:pointer; position:relative; color:#fff; user-select:none; padding-left:6px;
+}
+.menu-item:hover { color:#00ffff; }
+.menu-links, .credits-note { margin-top:10px; display:none; flex-direction:column; gap:8px; padding-left:0px; font-size:14px; color:#fff; }
+.menu-links a { text-decoration:none; display:block; color:#fff; }
+.menu-links a:hover { text-decoration:underline; color:#00ffff; }
+.logo {
+  position:absolute; top:15px; right:20px; width:120px; height:auto; border-radius:10px;
+  border:1px solid #00ffff; box-shadow:0 0 10px #00ffff; transition: box-shadow 0.3s ease, transform 0.3s ease; cursor:pointer; z-index:10;
+}
+.logo:hover { box-shadow: 0 0 20px #00ffff,0 0 40px #00ffff,0 0 60px #00ffff; transform: scale(1.05); }
+iframe { border-radius:8px; border:none; }
+</style>
+</head>
+<body>
+
+<div class="bubbles-container" id="bubblesContainer"></div>
+<img src="https://i.postimg.cc/7Pm4Bh5d/download-61.png" alt="Logo" class="logo">
+
+<div class="sidebar">
+  <div class="menu-item" data-id="games">Games</div>
+  <div class="menu-links" id="gamesList">
+    <a href="https://reading-old.q13x.com/" target="_blank">Unknown</a>
+    <a href="https://openprocessing.org/sketch/2494133" target="_blank">Unknown</a>
+    <a href="https://tetris.com/play-tetris" target="_blank">Unknown</a>
+    <a href="https://play2048.co/" target="_blank">Unknown</a>
+    <a href="https://agar.io/" target="_blank">Unknown</a>
+  </div>
+
+  <div class="menu-item" data-id="apps">Apps</div>
+  <div class="menu-links" id="appsList">
+    <a href="https://keep.google.com/" target="_blank">Unknown</a>
+    <a href="https://docs.google.com/" target="_blank">Unknown</a>
+    <a href="https://drive.google.com/" target="_blank">Unknown</a>
+    <a href="https://calendar.google.com/" target="_blank">Unknown</a>
+    <a href="https://mail.google.com/" target="_blank">Unknown</a>
+  </div>
+
+  <div class="menu-item" data-id="social">Social Media</div>
+  <div class="menu-links" id="socialList">
+    <a href="https://discord.com/" target="_blank">Discord</a>
+    <a href="https://www.youtube.com/" target="_blank">YouTube</a>
+    <a href="https://forms.google.com/" target="_blank">Link request</a>
+  </div>
+
+  <div class="menu-item" data-id="discord">Discord Chat</div>
+  <div class="menu-links" id="discordList">
+    <iframe src="https://discord.com/widget?id=YOUR_SERVER_ID&theme=dark" width="100%" height="400" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
+  </div>
+
+  <div class="menu-item" data-id="credits">Credits</div>
+  <div class="credits-note" id="creditsNote">
+    Credits to @Mario_GUY_2 for giving it a name and credits to @Goldenuser1 for designing and links.
+  </div>
+</div>
+
+<script>
+// Sidebar toggle
+const menuItems = Array.from(document.querySelectorAll('.menu-item'));
+menuItems.forEach(item => {
+  item.addEventListener('click', () => {
+    const id = item.dataset.id;
+    if(id==='credits'){
+      const note = document.getElementById('creditsNote');
+      note.style.display = (note.style.display==='block')?'none':'block';
+    } else {
+      const list = document.getElementById(id+'List');
+      if(list) list.style.display = (list.style.display==='flex')?'none':'flex';
+    }
+  });
+});
+
+// Bubbles
+const container=document.getElementById('bubblesContainer');
+function createBubble(x,y,size){
+  const bubble=document.createElement('div');
+  bubble.className='bubble';
+  size=size||Math.random()*25+10;
+  bubble.style.width=bubble.style.height=`${size}px`;
+  const rect=container.getBoundingClientRect();
+  bubble.style.left=x!==undefined?`${x-rect.left}px`:`${Math.random()*100}vw`;
+  bubble.style.top=y!==undefined?`${y-rect.top}px`:`${Math.random()*100}vh`;
+  bubble.style.animationDuration=`${Math.random()*5+5}s`;
+  container.appendChild(bubble);
+  bubble.addEventListener('animationend', ()=>bubble.remove());
+  bubble.addEventListener('click', ()=>{
+    const rect=bubble.getBoundingClientRect();
+    bubble.remove();
+    const count=Math.floor(Math.random()*3)+2;
+    for(let i=0;i<count;i++){
+      createBubble(rect.left+(Math.random()*30-15), rect.top+(Math.random()*30-15), Math.max(size/2,5));
+    }
+  });
+}
+setInterval(()=>createBubble(),400);
+</script>
+</body>
+</html>
